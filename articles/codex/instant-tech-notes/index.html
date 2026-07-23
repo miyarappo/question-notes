@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="質問をCodexで調べ、図解つき静的HTMLノートにしてGitHub Pagesで読む仕組み。">
+  <title>疑問から質問ノートができるまで — Question Notes</title>
+  <link rel="stylesheet" href="../../../styles/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../../../"><span class="brand-mark" aria-hidden="true">?</span> Question Notes</a>
+    <span class="meta">Codex と育てる質問ノート</span>
+  </header>
+
+  <main class="article">
+    <article>
+      <header class="article-header">
+        <p class="tag">Codex</p>
+        <h1>疑問から質問ノートができるまで</h1>
+        <p class="lede">「質問」と投げた疑問を、一次情報に基づく図解つきHTMLへ変換し、確認後に公開する。</p>
+        <p class="meta"><time datetime="2026-07-23">2026.07.23</time> · 5 min read</p>
+      </header>
+
+      <div class="callout"><strong>要点:</strong> 調査・記録・索引づけを一つの依頼にまとめると、その場の理解を検索可能な資産に変えられる。</div>
+
+      <h2>全体の流れ</h2>
+      <p>ノート作りは四段階です。Codexは記事の追加までは進めますが、公開は人が差分を確認してから行います。</p>
+
+      <div class="diagram" role="img" aria-label="質問、調査、記事化、公開確認の四段階">
+        <div class="diagram-step"><strong>1. 質問</strong>スマホやPCから、気になったことを自然文で送る。</div>
+        <div class="diagram-step"><strong>2. 調査</strong>公式文書や仕様などの一次情報を確認する。</div>
+        <div class="diagram-step"><strong>3. 記事化</strong>図解、例、注意点、参照元をHTMLにまとめる。</div>
+        <div class="diagram-step"><strong>4. 確認・公開</strong>人が差分を読み、問題がなければGitHub Pagesへ出す。</div>
+      </div>
+
+      <h2>使い方</h2>
+      <p>このプロジェクトをCodexで開き、たとえば次のように依頼します。</p>
+      <pre><code>質問 HTTPキャッシュのETagとLast-Modifiedはどう使い分ける？</code></pre>
+      <p>個人スキル <code>instant-tech-notes</code> が反応し、質問の分野に合った情報源、カテゴリ、URLを決めて記事を追加します。索引にも同時にカードを足すため、後からキーワードで探せます。</p>
+
+      <h2>安全に続けるための境界</h2>
+      <ul>
+        <li>記事には公開してよい情報だけを含める。</li>
+        <li>技術的な主張は一次情報で確かめ、参照URLを残す。</li>
+        <li>AIが作った内容をそのまま公開せず、人が差分を確認する。</li>
+        <li>スキルはpushや公開を勝手に行わない。</li>
+      </ul>
+
+      <h2>参照元</h2>
+      <ul class="sources">
+        <li><a href="https://zenn.dev/ttaniguchi/articles/instant-question-html-notes">移動中でも就寝前でも、Codexと育てる「技術ノート」 — Zenn</a></li>
+        <li><a href="https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages">What is GitHub Pages? — GitHub Docs</a></li>
+        <li><a href="https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site">Configuring a publishing source for your GitHub Pages site — GitHub Docs</a></li>
+      </ul>
+    </article>
+  </main>
+
+  <footer class="site-footer"><a href="../../../">← すべてのノートへ</a></footer>
+</body>
+</html>

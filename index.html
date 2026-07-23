@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="分野を問わず、疑問を信頼できる情報源と分かりやすい説明で残す個人用ノート。">
+  <title>Question Notes — 疑問を、あとで使える知識へ</title>
+  <link rel="stylesheet" href="styles/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="./"><span class="brand-mark" aria-hidden="true">?</span> Question Notes</a>
+    <span class="meta">Codex と育てる質問ノート</span>
+  </header>
+
+  <main class="site-main">
+    <section class="hero">
+      <div>
+        <p class="eyebrow">Question → Research → Note</p>
+        <h1>疑問を、あとで使える知識へ。</h1>
+        <p class="lede">技術でも、歴史でも、日々の暮らしでも。気になった瞬間に問いを投げ、信頼できる情報源をたどり、短いHTMLノートとして手元に残します。</p>
+      </div>
+      <div class="stat" aria-label="公開中の記事数">
+        <strong id="note-count">1</strong>
+        <span>note published</span>
+      </div>
+    </section>
+
+    <section aria-labelledby="notes-heading">
+      <h2 id="notes-heading">ノートを探す</h2>
+      <div class="toolbar">
+        <label>
+          <span class="eyebrow">キーワード</span>
+          <input class="search" id="search" type="search" placeholder="例: Codex、歴史、健康、仕事">
+        </label>
+        <div>
+          <p class="eyebrow">カテゴリ</p>
+          <div class="filters" role="group" aria-label="カテゴリで絞り込む">
+            <button class="filter" type="button" data-category="all" aria-pressed="true">すべて</button>
+            <button class="filter" type="button" data-category="codex" aria-pressed="false">Codex</button>
+            <button class="filter" type="button" data-category="science" aria-pressed="false">科学</button>
+            <button class="filter" type="button" data-category="society" aria-pressed="false">社会</button>
+            <button class="filter" type="button" data-category="business" aria-pressed="false">仕事</button>
+            <button class="filter" type="button" data-category="culture" aria-pressed="false">文化</button>
+            <button class="filter" type="button" data-category="life" aria-pressed="false">暮らし</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="notes-grid" id="notes">
+        <article class="note-card" data-category="codex" data-keywords="codex github pages html スキル 技術ノート 自動化">
+          <span class="tag">Codex</span>
+          <h2><a href="articles/codex/instant-tech-notes/">疑問から質問ノートができるまで</a></h2>
+          <p>スマホで投げた質問を、調査済みのHTML記事として安全に蓄積する流れ。</p>
+          <time datetime="2026-07-23">2026.07.23</time>
+        </article>
+        <p class="empty" id="empty" hidden>条件に合うノートはまだありません。</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">理解は一度きりでも、ノートは何度でも役に立つ。</footer>
+
+  <script>
+    const search = document.querySelector("#search");
+    const cards = [...document.querySelectorAll(".note-card")];
+    const filters = [...document.querySelectorAll(".filter")];
+    const empty = document.querySelector("#empty");
+    let category = "all";
+
+    function refresh() {
+      const query = search.value.trim().toLocaleLowerCase("ja");
+      let visible = 0;
+      for (const card of cards) {
+        const matchesCategory = category === "all" || card.dataset.category === category;
+        const matchesQuery = !query || `${card.textContent} ${card.dataset.keywords}`.toLocaleLowerCase("ja").includes(query);
+        card.hidden = !(matchesCategory && matchesQuery);
+        if (!card.hidden) visible += 1;
+      }
+      empty.hidden = visible !== 0;
+    }
+
+    search.addEventListener("input", refresh);
+    for (const filter of filters) {
+      filter.addEventListener("click", () => {
+        category = filter.dataset.category;
+        for (const item of filters) item.setAttribute("aria-pressed", String(item === filter));
+        refresh();
+      });
+    }
+  </script>
+</body>
+</html>

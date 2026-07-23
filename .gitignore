@@ -1,0 +1,15 @@
+*
+!/.gitignore
+!/AGENTS.md
+!/README.md
+!/index.html
+!/404.html
+!/styles/
+!/styles/**
+!/scripts/
+!/scripts/**
+!/articles/
+!/articles/**
+!/.github/
+!/.github/workflows/
+!/.github/workflows/static.yml
