@@ -225,6 +225,69 @@ code { font-family: "SFMono-Regular", Consolas, monospace; font-size: .92em; }
 .sources { padding-left: 1.3em; }
 .sources li { margin-block: .7em; }
 
+.article table {
+  width: 100%;
+  margin: 28px 0;
+  border-collapse: collapse;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.article th,
+.article td {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.article thead th { background: var(--accent-soft); }
+.article tbody th { width: 18%; }
+
+.outlook,
+.risk-grid {
+  display: grid;
+  gap: 14px;
+  margin: 28px 0;
+}
+
+.outlook { grid-template-columns: repeat(3, 1fr); }
+.risk-grid { grid-template-columns: repeat(2, 1fr); }
+
+.outlook section,
+.risk-grid section {
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.outlook h3,
+.risk-grid h3 { margin: 8px 0; }
+.outlook p,
+.risk-grid p { margin-bottom: 0; }
+
+.outlook-mark {
+  color: var(--accent);
+  font-size: 1.5rem;
+  font-weight: 900;
+}
+
+.outlook-mark--high { color: #0d7a4f; }
+.outlook-mark--mixed { color: #a56808; }
+
+.note {
+  padding: 18px 20px;
+  border-left: 4px solid var(--accent);
+  background: var(--accent-soft);
+}
+
+.reason-list { padding-left: 1.4em; }
+.reason-list li { margin-block: 1.3em; padding-left: .35em; }
+.reason-list p { margin: .35em 0 0; }
+
 .site-footer {
   padding: 34px 0 50px;
   border-top: 1px solid var(--line);
@@ -232,8 +295,9 @@ code { font-family: "SFMono-Regular", Consolas, monospace; font-size: .92em; }
 }
 
 @media (max-width: 760px) {
-  .hero, .toolbar, .notes-grid, .diagram { grid-template-columns: 1fr; }
+  .hero, .toolbar, .notes-grid, .diagram, .outlook, .risk-grid { grid-template-columns: 1fr; }
   .hero { gap: 28px; padding-top: 42px; }
+  .article table { display: block; overflow-x: auto; }
   .diagram-step:not(:last-child)::after {
     content: "↓";
     top: auto;
