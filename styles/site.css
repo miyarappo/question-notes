@@ -288,6 +288,54 @@ code { font-family: "SFMono-Regular", Consolas, monospace; font-size: .92em; }
 .reason-list li { margin-block: 1.3em; padding-left: .35em; }
 .reason-list p { margin: .35em 0 0; }
 
+.eye-stack {
+  display: grid;
+  grid-template-columns: .7fr repeat(5, 1fr);
+  gap: 8px;
+  align-items: stretch;
+  margin: 28px 0;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.light-ray,
+.eye-layer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 108px;
+  padding: 14px;
+  border-radius: 14px;
+  text-align: center;
+  background: var(--accent-soft);
+}
+
+.light-ray {
+  color: #7a5006;
+  background: #f7e5bd;
+}
+
+.light-ray span { font-size: 1.5rem; }
+.eye-layer span { color: var(--muted); font-size: .78rem; }
+.eye-layer--accent { color: white; background: var(--accent); }
+.eye-layer--accent span { color: rgba(255, 255, 255, .82); }
+.eye-layer--retina { border: 2px solid var(--warm); }
+
+.table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 28px 0;
+  border-radius: 18px;
+}
+
+.table-scroll table {
+  min-width: 720px;
+  margin: 0;
+}
+
 .site-footer {
   padding: 34px 0 50px;
   border-top: 1px solid var(--line);
@@ -304,6 +352,53 @@ code { font-family: "SFMono-Regular", Consolas, monospace; font-size: .92em; }
     right: 50%;
     bottom: -22px;
     transform: translateX(50%);
+  }
+  .eye-stack { grid-template-columns: 1fr 1fr; }
+  .light-ray { grid-column: 1 / -1; min-height: 74px; }
+  .table-scroll { overflow: visible; }
+  .table-scroll table {
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .table-scroll thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+  }
+  .table-scroll tbody,
+  .table-scroll tr,
+  .table-scroll th,
+  .table-scroll td {
+    display: block;
+    width: 100%;
+  }
+  .table-scroll tr {
+    margin-bottom: 18px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--panel);
+    box-shadow: var(--shadow);
+  }
+  .table-scroll th,
+  .table-scroll td {
+    border: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .table-scroll td:last-child { border-bottom: 0; }
+  .table-scroll td::before {
+    content: attr(data-label);
+    display: block;
+    margin-bottom: 4px;
+    color: var(--accent);
+    font-size: .75rem;
+    font-weight: 800;
+    letter-spacing: .06em;
   }
 }
 
