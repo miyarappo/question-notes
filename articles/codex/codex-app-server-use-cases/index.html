@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Codex app-serverの役割、JSON-RPCによるスレッド・承認・イベント連携、SDK・codex exec・MCPとの違い、有効な利用場面を整理する。">
+  <title>Codex app-serverとは何か、いつ使うのか — Question Notes</title>
+  <link rel="stylesheet" href="../../../styles/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../../../"><span class="brand-mark" aria-hidden="true">?</span> Question Notes</a>
+    <span class="meta">Codex と育てる質問ノート</span>
+  </header>
+
+  <main class="article">
+    <article>
+      <header class="article-header">
+        <p class="tag">Codex</p>
+        <h1>Codex app-serverとは何か、いつ使うのか</h1>
+        <p class="lede">app-serverは、Codexの会話・実行・承認・進捗イベントを、自作のGUIやIDEから双方向に操作するためのローカルAPI層である。単発の自動化より、「Codexを製品の一部として見せる」用途に向く。</p>
+        <p class="meta"><time datetime="2026-07-25">2026.07.25</time> · 8 min read · 2026年7月25日確認</p>
+      </header>
+
+      <div class="callout"><strong>ひとことで:</strong> Codex app-serverは、Codexの頭脳そのものでもWebアプリのサーバーでもない。Codexエージェントと、VS Code拡張・デスクトップアプリ・自作クライアントなどの間をつなぐ「操作プロトコルのサーバー」である。</div>
+
+      <h2>何をしてくれるものか</h2>
+      <p><a href="https://developers.openai.com/codex/app-server/">OpenAI公式ドキュメント</a>は、app-serverをCodexのリッチクライアントを動かすためのインターフェースと説明している。クライアントは、認証状態、会話履歴、モデルや設定、承認画面、コマンドやファイル編集の進行、最終回答を、それぞれ構造化されたメッセージとして扱える。</p>
+
+      <div class="diagram" aria-label="自作クライアントからCodex app-serverを介してCodexエージェントを操作する流れ">
+        <div class="diagram-step">
+          <strong>自作クライアント</strong>
+          GUI、IDE拡張、社内ツール、別端末のTUI
+        </div>
+        <div class="diagram-step">
+          <strong>JSON-RPC</strong>
+          要求、応答、進捗通知、承認への返答
+        </div>
+        <div class="diagram-step">
+          <strong>app-server</strong>
+          スレッド、ターン、認証、設定を管理
+        </div>
+        <div class="diagram-step">
+          <strong>Codex実行環境</strong>
+          モデル、シェル、ファイル、MCP、スキル
+        </div>
+      </div>
+
+      <p>通信はJSON-RPC 2.0に似た双方向プロトコルで、既定は標準入出力上の1行1JSONである。UnixソケットとWebSocketにも対応するが、WebSocketトランスポートは公式に実験的・未サポートと明記されている。</p>
+
+      <h2>基本単位はThread・Turn・Item</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">単位</th>
+            <th scope="col">意味</th>
+            <th scope="col">画面での例</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Thread</th>
+            <td>ユーザーとCodexのひと続きの会話。新規作成、再開、分岐、一覧取得、アーカイブができる。</td>
+            <td>サイドバーに並ぶ「タスク」や「チャット」</td>
+          </tr>
+          <tr>
+            <th scope="row">Turn</th>
+            <td>ユーザー入力からCodexの処理完了までの1往復。開始や中断ができる。</td>
+            <td>「このテスト失敗を直して」から最終報告まで</td>
+          </tr>
+          <tr>
+            <th scope="row">Item</th>
+            <td>ターン内の細かな入出力。メッセージ、推論の要約、コマンド、ファイル編集など。</td>
+            <td>進捗カード、実行ログ、差分、回答文</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p>接続後は最初に<code>initialize</code>を送り、次に<code>thread/start</code>または<code>thread/resume</code>、その後<code>turn/start</code>を呼ぶ。実行中は<code>item/started</code>、文章の差分、<code>item/completed</code>、最後に<code>turn/completed</code>などが流れてくる。</p>
+
+      <pre><code>// 概念をつかむための最小シーケンス
+client → { "method": "initialize", "id": 1, "params": { "clientInfo": { ... } } }
+client → { "method": "initialized" }
+client → { "method": "thread/start", "id": 2, "params": { "cwd": "..." } }
+client → { "method": "turn/start", "id": 3, "params": {
+  "threadId": "thr_...",
+  "input": [{ "type": "text", "text": "テスト失敗を調べて" }]
+} }
+server → { "method": "item/started", ... }
+server → { "method": "item/agentMessage/delta", ... }
+server → { "method": "turn/completed", ... }</code></pre>
+
+      <p>コマンド実行やファイル変更に承認が必要な場合、app-serverはクライアント側へ承認要求を送る。クライアントは内容を画面に表示し、許可・拒否などを返す。この<strong>サーバーからクライアントへの要求</strong>があるため、単純な一方向HTTP APIではなく双方向通信になっている。</p>
+
+      <h2>有効な使い道</h2>
+      <div class="risk-grid">
+        <section>
+          <h3>1. 自社IDE・開発ツールへ埋め込む</h3>
+          <p>チャット、変更差分、ターミナル進捗、承認ボタンを自社UIで一体化する。VS Code拡張のような体験を作りたい場合が本命である。</p>
+        </section>
+        <section>
+          <h3>2. 社内Codexコンソール</h3>
+          <p>複数リポジトリのスレッド一覧、実行状態、履歴、モデル、権限、レビュー待ちを、組織の運用画面へ統合する。</p>
+        </section>
+        <section>
+          <h3>3. 専門用途の薄いクライアント</h3>
+          <p>「CI修正だけ」「翻訳レビューだけ」など、入力項目と確認画面を業務に合わせ、裏側では通常のCodexスレッドを動かす。</p>
+        </section>
+        <section>
+          <h3>4. 別マシンからTUIへ接続する</h3>
+          <p>計算環境でapp-serverを動かし、手元のCodex CLIを<code>--remote</code>で接続する。現時点のWebSocketは実験的なので、ローカルまたはSSH転送が安全な試用範囲である。</p>
+        </section>
+        <section>
+          <h3>5. 独自の承認・監査UX</h3>
+          <p>実行コマンドや変更差分を会社の承認画面に出し、許可判断をCodexへ返す。認証状態や利用量も同じクライアントで表示できる。</p>
+        </section>
+        <section>
+          <h3>6. Codexクライアントの研究・試作</h3>
+          <p>音声、モバイル、アクセシビリティ、可視化など、新しい操作面を試す。型定義を生成できるため、プロトコルの手書きを減らせる。</p>
+        </section>
+      </div>
+
+      <h2>app-serverを使わないほうがよい場面</h2>
+      <p>「Codexをプログラムから使う」という言葉だけではapp-serverを選ぶ理由にならない。UIの深さと、双方向イベントを自分で扱う必要があるかで決める。</p>
+
+      <div class="table-scroll" tabindex="0" aria-label="Codex app-server、SDK、exec、MCPの使い分け">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">やりたいこと</th>
+              <th scope="col">第一候補</th>
+              <th scope="col">理由</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">自作GUIで会話・差分・承認・進捗を細かく表示</th>
+              <td data-label="第一候補"><strong>app-server</strong></td>
+              <td data-label="理由">認証、履歴、イベント、承認までプロトコルに含む。</td>
+            </tr>
+            <tr>
+              <th scope="row">CI/CDやバックエンドからCodexを継続的に制御</th>
+              <td data-label="第一候補"><a href="https://developers.openai.com/codex/sdk/">Codex SDK</a></td>
+              <td data-label="理由">公式もジョブ・CIにはSDKを推奨。アプリコードからスレッドを扱いやすい。</td>
+            </tr>
+            <tr>
+              <th scope="row">シェルスクリプトで1回実行し、最終文だけ受け取る</th>
+              <td data-label="第一候補"><a href="https://developers.openai.com/codex/noninteractive/"><code>codex exec</code></a></td>
+              <td data-label="理由">標準出力へ最終回答を出せるので、パイプやCIに自然に組み込める。</td>
+            </tr>
+            <tr>
+              <th scope="row">CodexにGitHub、Figma、ブラウザなどの道具を追加</th>
+              <td data-label="第一候補"><a href="https://developers.openai.com/codex/mcp/">MCP</a></td>
+              <td data-label="理由">MCPはモデルへ外部ツールと文脈を渡す規格。クライアントUIを作るapp-serverとは向きが逆。</td>
+            </tr>
+            <tr>
+              <th scope="row">Codexをより大きな複数エージェント処理の専門役にする</th>
+              <td data-label="第一候補">Codex MCP Server＋Agents SDK</td>
+              <td data-label="理由">公式SDKガイドが、広いオーケストレーションではこの構成を案内している。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="note"><strong>実務上の判断:</strong> 最終回答だけ欲しければ<code>codex exec</code>、コードから数ターン扱うならSDK、Codexの操作画面そのものを作るならapp-server、と覚えるとよい。app-serverは最も自由だが、イベントの状態管理、再接続、承認、互換性、安全対策までクライアント側の責任が増える。</p>
+
+      <h2>始め方</h2>
+      <p>ローカル試作なら、既定の標準入出力が最も単純である。</p>
+
+      <pre><code># サーバーを標準入出力で起動
+codex app-server
+
+# 使用中のCodex版に一致するTypeScript型を生成
+codex app-server generate-ts --out ./schemas
+
+# またはJSON Schemaを生成
+codex app-server generate-json-schema --out ./schemas</code></pre>
+
+      <p>生成される型とスキーマは、実行したCodexのバージョンに対応する。プロトコルを記憶や古い記事から手書きせず、使用するCLIから生成するのが安全である。試作コードは子プロセスとして<code>codex app-server</code>を起動し、標準入力へJSONLを書き、標準出力を1行ずつ読む構成にできる。</p>
+
+      <h2>注意点</h2>
+      <ul>
+        <li><strong>WebSocketは実験的:</strong> 本番システムの安定した公開APIだと見なさない。仕様変更を吸収できる設計にする。</li>
+        <li><strong>ネットへ裸で公開しない:</strong> 平文WebSocketはlocalhostまたはSSHポート転送に限定する。非ローカル接続ではTLSとWebSocket認証を使う。</li>
+        <li><strong>承認を省略しない:</strong> クライアントが承認要求を正しく表示・応答できないと、安全な運用も処理の継続もできない。</li>
+        <li><strong>安定APIと実験APIを分ける:</strong> 型生成は既定で安定面だけを出す。実験機能は初期化時に明示的なオプトインが必要で、後方互換は保証されない。</li>
+        <li><strong>秘密情報をログへ出さない:</strong> 認証トークン、ユーザー入力、コマンド、ファイル内容を、デバッグログや分析基盤へ無条件に送らない。</li>
+        <li><strong>SDKで足りるか先に考える:</strong> Python SDKは内部でローカルapp-serverをJSON-RPC制御する。低レベル実装が必要でなければSDKのほうが保守しやすい。</li>
+      </ul>
+
+      <h2>参照元</h2>
+      <ul class="sources">
+        <li><a href="https://developers.openai.com/codex/app-server/">Codex App Server — OpenAI</a></li>
+        <li><a href="https://github.com/openai/codex/blob/main/codex-rs/app-server/README.md">codex app-server README — openai/codex</a></li>
+        <li><a href="https://github.com/openai/codex/blob/main/codex-rs/app-server-test-client/README.md">app-server test client quickstart — openai/codex</a></li>
+        <li><a href="https://developers.openai.com/codex/sdk/">Codex SDK — OpenAI</a></li>
+        <li><a href="https://developers.openai.com/codex/noninteractive/">Non-interactive mode — OpenAI</a></li>
+        <li><a href="https://developers.openai.com/codex/mcp/">Model Context Protocol — OpenAI</a></li>
+        <li><a href="https://github.com/openai/codex/blob/main/codex-rs/docs/codex_mcp_interface.md">Codex MCP server interface — openai/codex</a></li>
+      </ul>
+    </article>
+  </main>
+
+  <footer class="site-footer"><a href="../../../">← すべてのノートへ</a></footer>
+</body>
+</html>
