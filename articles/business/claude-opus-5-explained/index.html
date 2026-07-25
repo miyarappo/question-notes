@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Claude Opus 5の位置づけ、性能、1Mトークン文脈、effort、料金、安全対策、向く仕事と注意点を公式資料から分かりやすく解説する。">
+  <title>Claude Opus 5は何が変わったのか — Question Notes</title>
+  <link rel="stylesheet" href="../../../styles/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../../../"><span class="brand-mark" aria-hidden="true">?</span> Question Notes</a>
+    <span class="meta">Codex と育てる質問ノート</span>
+  </header>
+
+  <main class="article">
+    <article>
+      <header class="article-header">
+        <p class="tag">仕事</p>
+        <h1>Claude Opus 5は何が変わったのか</h1>
+        <p class="lede">Claude Opus 5は、難しいコード修正、長い調査、PC操作、文書作成を最後まで進める「実務エージェント」向けモデルである。最高性能だけを狙うFable 5より安く、日常的な高難度作業に使いやすい位置を担う。</p>
+        <p class="meta"><time datetime="2026-07-25">2026.07.25</time> · 10 min read · 2026年7月25日確認</p>
+      </header>
+
+      <div class="callout"><strong>要点:</strong> Opus 5の進歩は、質問への一発回答よりも「調べる→道具を使う→作る→検証する→直す」という長い仕事で現れる。1Mトークンの文脈と5段階のeffortで、品質・時間・費用を仕事ごとに調整できる。ただし、誤答がなくなったわけでも、すべての用途で最適なわけでもない。</div>
+
+      <h2>まず、Claudeの中でどの位置にいるのか</h2>
+      <p>Anthropicは2026年7月24日にClaude Opus 5を公開した。「Opus」が最上位という従来の感覚だと分かりにくいが、現在のClaudeには別の役割を持つモデルがある。</p>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">モデル</th>
+            <th scope="col">位置づけ</th>
+            <th scope="col">API料金<br>入力／出力</th>
+            <th scope="col">向く場面</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Fable 5</th>
+            <td>一般提供される最高能力</td>
+            <td>$10／$50</td>
+            <td>費用より到達能力を優先する長時間エージェント</td>
+          </tr>
+          <tr>
+            <th scope="row">Opus 5</th>
+            <td>高難度実務の主力</td>
+            <td>$5／$25</td>
+            <td>複雑な開発、調査、分析、文書・PC作業</td>
+          </tr>
+          <tr>
+            <th scope="row">Sonnet 5</th>
+            <td>速度と能力の均衡</td>
+            <td>$2／$10*</td>
+            <td>応答速度や処理量も重要な一般業務</td>
+          </tr>
+          <tr>
+            <th scope="row">Haiku 4.5</th>
+            <td>最速・低価格</td>
+            <td>$1／$5</td>
+            <td>分類、抽出、短い応答、大量処理</td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="note">料金は100万トークンあたりの米ドル。Sonnet 5は2026年8月31日まで入力$2・出力$10の導入価格がある。Claudeの月額プランとAPI従量料金は別物である。サイバー防御向けのMythos 5は招待制で、一般利用の比較対象ではない。</p>
+      <p>つまりOpus 5は「Anthropicの絶対的な最上位」ではない。Fable 5に近い難問処理能力を、その半額の基本単価で日常的な仕事へ使うモデルである。Claude Maxでは新しい既定モデル、Claude Proでは最も強い選択肢と説明されている。</p>
+
+      <h2>何が進歩したのか</h2>
+      <div class="outlook" aria-label="Claude Opus 5の3つの中心的な進歩">
+        <section>
+          <span class="outlook-mark outlook-mark--high" aria-hidden="true">1</span>
+          <h3>完了まで進める</h3>
+          <p>複数ファイルの機能追加、原因の深いバグ修正、長い調査などを、途中の計画や仮コードで終わらせにくい。</p>
+        </section>
+        <section>
+          <span class="outlook-mark outlook-mark--high" aria-hidden="true">2</span>
+          <h3>自分で検証する</h3>
+          <p>テスト、ブラウザー、別の計算法などを使い、結果を確認してから直す傾向が強くなった。</p>
+        </section>
+        <section>
+          <span class="outlook-mark outlook-mark--high" aria-hidden="true">3</span>
+          <h3>長く一貫して働く</h3>
+          <p>大きなコードベースや資料群を読み、道具を何度も使う長時間の作業で目的を保ちやすい。</p>
+        </section>
+      </div>
+
+      <h3>難しいコーディング</h3>
+      <p>公式ガイドは、複数ファイルにまたがる機能、大規模リファクタリング、最初から最後までの実装を中心的な強みとしている。特に重要なのは、表面の症状だけ直すのではなく原因を探すこと、実装後にテストや画面表示を確認することである。発表記事には、図面を直接読めない環境で独自の画像処理パイプラインを作り、FreeCADモデルを再構成した例もある。</p>
+
+      <h3>知識労働とPC操作</h3>
+      <p>対象はコードだけではない。表計算、スライド、契約書の修正、財務分析、科学研究、ブラウザーやデスクトップの操作も評価されている。OSWorld 2.0やZapier AutomationBenchでは、単に正しい文章を書くのではなく、画面や業務ツールを操作して仕事を完了できるかを測る。</p>
+
+      <h3>科学と視覚理解</h3>
+      <p>Anthropicの生命科学評価では、Opus 4.8より全項目で改善したという。社内評価では、有機化学のスペクトルから構造を推定する課題が10.2ポイント、タンパク質配列変異と機能の課題が7.7ポイント上がった。チャート、文書、図、UIの理解も強化され、視覚ツールを使って切り出しや再確認を繰り返すと効果が高いとされる。</p>
+
+      <h2>ベンチマークの読み方</h2>
+      <p>Anthropicは、Frontier-Bench v0.1で他モデルを上回り、Opus 4.8の性能を2倍超にしたこと、ARC-AGI 3では次点モデルの約3倍、同じ費用でのAutomationBench合格率は次点の約1.5倍だったと発表している。これは大きな改善を示すが、次の理由から「どんな質問でも3倍賢い」という意味にはならない。</p>
+      <ul>
+        <li><strong>課題が限定される:</strong> コード、抽象推論、PC操作など、各ベンチマークが測る能力は異なる。</li>
+        <li><strong>設定で結果が変わる:</strong> effort、利用ツール、実行環境、試行回数、採点方法がスコアへ影響する。</li>
+        <li><strong>一部は社内実行:</strong> 発表脚注では、Frontier-Benchの結果はAnthropicの実行で、5回試行の平均と説明される。</li>
+        <li><strong>費用比較は総額ではない:</strong> 「1タスクあたり費用」は、モデル単価だけでなく生成トークン数や成功までの再試行回数を含む。</li>
+        <li><strong>実務固有の品質は別:</strong> 自社コード、社内文書、日本語、必要なツールで小さな評価セットを作るほうが導入判断に役立つ。</li>
+      </ul>
+      <p class="note"><strong>判断:</strong> 公開結果は「長いツール利用を含む実務で改善した」という方向を支持する。一方、比較値の多くは提供元または早期利用企業の評価であり、独立した再現結果が蓄積するまでは幅を持って見るべきである。</p>
+
+      <h2>1Mトークンの文脈は何に効くか</h2>
+      <p>Opus 5は、標準でも最大でも100万トークンのコンテキストウィンドウを持ち、同期Messages APIの最大出力は12万8000トークンである。信頼性の高い知識カットオフと学習データのカットオフはともに2026年5月とされる。</p>
+      <p>100万トークンは「記憶力が無限」という意味ではない。モデルへ一度に渡せる入力と会話履歴の上限である。大量のコード、議事録、契約書、論文を同じ作業に含めやすくなるが、次の制約が残る。</p>
+      <ul>
+        <li>入力が増えれば、通常は処理時間と料金も増える。</li>
+        <li>資料中の古い記述や矛盾まで自動的に解決されるわけではない。</li>
+        <li>重要な要件が大量の文章に埋もれる可能性は残る。</li>
+        <li>モデルの学習済み知識は2026年5月までなので、それ以後の情報には検索や資料提供が必要。</li>
+      </ul>
+
+      <h2>effortで「どこまで考えるか」を選べる</h2>
+      <p>Opus 5は、<code>low</code>、<code>medium</code>、<code>high</code>、<code>xhigh</code>、<code>max</code>の5段階に対応する。既定は<code>high</code>。effortは厳密なトークン上限ではなく、どれだけ思考・探索するかを伝える行動上の信号である。</p>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">effort</th>
+            <th scope="col">使いどころ</th>
+            <th scope="col">注意</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">low</th>
+            <td>短い検索、分類、単純なサブタスク</td>
+            <td>複雑な条件を見落としやすくなる</td>
+          </tr>
+          <tr>
+            <th scope="row">medium</th>
+            <td>費用と品質を両立したい日常業務</td>
+            <td>自社評価で品質が保てるか確認する</td>
+          </tr>
+          <tr>
+            <th scope="row">high</th>
+            <td>難しい推論、開発、エージェント作業</td>
+            <td>既定値。まずここから試す</td>
+          </tr>
+          <tr>
+            <th scope="row">xhigh</th>
+            <td>長いコーディング、反復的な調査</td>
+            <td>トークンと待ち時間が増えやすい</td>
+          </tr>
+          <tr>
+            <th scope="row">max</th>
+            <td>費用制約より到達能力を優先する難問</td>
+            <td>過剰思考になり、費用対効果が落ちることもある</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>effortが変えるのは主に思考量で、表示される回答の長さではない。短い回答が必要なら「5項目以内」「300字程度」のように、長さを直接指定する。Anthropicは、低・中effortでも品質が保てる業務では積極的に下げ、難しいエージェント作業だけ上げることを勧めている。</p>
+
+      <h2>料金を具体例で考える</h2>
+      <p>標準API料金は、入力100万トークンあたり5ドル、出力100万トークンあたり25ドルで、Opus 4.8と同じ。たとえば入力5万、出力1万5000トークンなら、モデルの基本料金は次の計算になる。</p>
+      <div class="callout">
+        入力：50,000 × $5 ÷ 1,000,000 ＝ <strong>$0.25</strong><br>
+        出力：15,000 × $25 ÷ 1,000,000 ＝ <strong>$0.375</strong><br>
+        合計：<strong>$0.625</strong>（ツール、キャッシュ、実行環境などの追加料金を除く）
+      </div>
+      <p>長いエージェント作業では、同じ会話履歴やツール定義を毎回送り直すため、入力トークンが膨らみやすい。プロンプトキャッシュの読み出しはOpus 5で100万トークンあたり0.50ドルなので、長い固定部分を再利用すると差が大きい。非同期のBatch APIは入出力とも50%割引である。</p>
+
+      <h3>Fast modeは「別の賢いモデル」ではない</h3>
+      <p>Fast modeは同じモデルを高速な推論構成で動かし、出力速度を最大2.5倍にする研究プレビューである。最初の文字が出るまでの時間ではなく、出力開始後の毎秒トークン数が主に改善する。料金は入力$10、出力$50と標準の2倍で、現時点ではClaude APIのみ。クラウド各社の提供では使えない。</p>
+
+      <h2>エージェント開発で増えた2つの機能</h2>
+      <h3>会話途中のツール変更</h3>
+      <p>長い会話の途中で、Claudeに見せるツールを追加・削除できるベータ機能が入った。全ツール定義を書き換えず、必要な時点で使える状態だけ変えるため、過去の長いプロンプトキャッシュを無効にせずに済む。たとえば、分析が終わるまで「送信」ツールを隠し、承認後だけ追加する構成を作れる。</p>
+
+      <h3>安全判定時の自動フォールバック</h3>
+      <p>Opus 5で安全分類器に止められた要求を、別モデルへ自動的に回すAPI機能もベータ提供された。サイバーセキュリティでは、ソースコードの脆弱性発見は許しつつ、バイナリ解析、侵入テスト、攻撃コード生成などを強く制限する。Claude.ai、Claude Code、Claude Coworkでは、該当時にOpus 4.8へ切り替える構成が既定とされる。</p>
+
+      <h2>安全性について分かったこと</h2>
+      <p>Anthropicの自動行動監査では、Opus 5の不整合行動スコアは2.3で、同社の最近のモデル中もっとも低かったという。欺瞞的な挙動や、取り返しにくい操作を軽率に行う傾向も低いと説明される。これは提供元の事前評価であり、現実のすべての環境で安全を保証する数値ではない。</p>
+      <p>また、AnthropicはOpus 5が危険な生物・サイバー能力の最前線を押し上げてはいないと評価する。脆弱性を見つける能力は高いが、実際の攻撃へ変換する能力はMythos 5より低い。ただし一般能力の向上に伴ってサイバー課題も改善しており、分類器と利用制限は残されている。</p>
+
+      <h2>実際には何に使うべきか</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">仕事</th>
+            <th scope="col">Opus 5を選ぶ理由</th>
+            <th scope="col">別モデルも検討</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">大規模なコード変更</th>
+            <td>複数ファイル、テスト、画面確認まで一続きで進める</td>
+            <td>一行修正や定型生成はSonnet・Haiku</td>
+          </tr>
+          <tr>
+            <th scope="row">深い調査・分析</th>
+            <td>多数の資料と道具を使い、仮説を検証する</td>
+            <td>最高能力が必要ならFable</td>
+          </tr>
+          <tr>
+            <th scope="row">表計算・資料作成</th>
+            <td>数式、複数シート、スライドの構成と修正</td>
+            <td>単純な抽出・整形は低価格モデル</td>
+          </tr>
+          <tr>
+            <th scope="row">PC操作エージェント</th>
+            <td>画面を見て操作し、結果を再確認する</td>
+            <td>操作失敗時の影響が大きければ人の承認を必須にする</td>
+          </tr>
+          <tr>
+            <th scope="row">高頻度チャット</th>
+            <td>難しい相談だけOpusへ振り分ける</td>
+            <td>全件Opusは費用・遅延が過剰になりやすい</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2>うまく使うための指示</h2>
+      <p>Opus 5は既存のOpus 4.8向けプロンプトでも動くが、公式ガイドは挙動の違いをいくつか挙げている。</p>
+      <ul>
+        <li><strong>仕事全体を最初に渡す:</strong> 難しい作業は細切れに指示するより、目的、完成条件、制約をまとめて伝える。</li>
+        <li><strong>回答の長さを明示する:</strong> 既定の説明は以前より長くなりやすい。effortを下げるだけでは短くならない。</li>
+        <li><strong>過剰な再確認を命じない:</strong> 自発的な検証が強いため、「必ず二重確認」を重ねると費用だけ増える場合がある。</li>
+        <li><strong>範囲を区切る:</strong> 狭い依頼では、要求外の改善や公開まで進めないよう、実行範囲と停止点を示す。</li>
+        <li><strong>サブエージェント数を制限する:</strong> 小さな仕事でも委任しやすいため、並列化が本当に有効な場合だけ許可する。</li>
+        <li><strong>thinkingは基本的に有効のまま:</strong> 無効にすると、ツール呼び出しや内部タグが通常の文章へ漏れる場合がある。低effortで費用を抑えるほうが安定しやすい。</li>
+      </ul>
+
+      <h2>限界と注意点</h2>
+      <ul>
+        <li>自己検証が強くても、誤情報、見落とし、誤ったツール操作は起こる。</li>
+        <li>100万トークンを入れれば、大量資料を完全に理解できるとは限らない。</li>
+        <li>社内文書、個人情報、機密コードは、契約、保存設定、権限、監査ログを確認してから扱う。</li>
+        <li>送信、公開、削除、決済、インフラ変更など、戻しにくい操作には人の承認を置く。</li>
+        <li>医療、法律、金融、科学では、出典確認と専門家の判断を置き換えない。</li>
+        <li>モデル名だけで移行せず、自社の代表タスクで品質、時間、費用、失敗率を比較する。</li>
+      </ul>
+
+      <p class="note"><strong>ひとことで言えば:</strong> Opus 5は「一番難しい質問に答えるだけのモデル」から、「難しい仕事を途中で投げず、道具を使って完了へ近づける実務モデル」へ重心を移した。価値は一発のデモより、長い仕事の成功率と再作業の減少で判断するのがよい。</p>
+
+      <h2>参照元</h2>
+      <ul class="sources">
+        <li><a href="https://www.anthropic.com/news/claude-opus-5">Introducing Claude Opus 5 — Anthropic</a></li>
+        <li><a href="https://platform.claude.com/docs/en/about-claude/models/overview">Models overview — Claude Platform Docs</a></li>
+        <li><a href="https://platform.claude.com/docs/en/about-claude/pricing">Pricing — Claude Platform Docs</a></li>
+        <li><a href="https://platform.claude.com/docs/en/build-with-claude/effort">Effort — Claude Platform Docs</a></li>
+        <li><a href="https://platform.claude.com/docs/en/build-with-claude/fast-mode">Fast mode — Claude Platform Docs</a></li>
+        <li><a href="https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/prompting-claude-opus-5">Prompting Claude Opus 5 — Claude Platform Docs</a></li>
+        <li><a href="https://platform.claude.com/docs/en/build-with-claude/mid-conversation-system-messages">Mid-conversation system messages and tool changes — Claude Platform Docs</a></li>
+        <li><a href="https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback">Refusals and fallback — Claude Platform Docs</a></li>
+        <li><a href="https://www.frontierbench.ai/">Frontier-Bench</a></li>
+      </ul>
+    </article>
+  </main>
+
+  <footer class="site-footer"><a href="../../../">← すべてのノートへ</a></footer>
+</body>
+</html>
