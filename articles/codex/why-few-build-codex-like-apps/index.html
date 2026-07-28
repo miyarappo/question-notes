@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="高性能なOpenAIモデルが使えてもCodex級のアプリが簡単には増えない理由を、モデル、エージェント基盤、製品化、事業化の4層に分けて説明する。">
+  <title>モデルがあってもCodex級のアプリが簡単には増えない理由 — Question Notes</title>
+  <link rel="stylesheet" href="../../../styles/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../../../"><span class="brand-mark" aria-hidden="true">?</span> Question Notes</a>
+    <span class="meta">Codex と育てる質問ノート</span>
+  </header>
+
+  <main class="article">
+    <article>
+      <header class="article-header">
+        <p class="tag">Codex</p>
+        <h1>モデルがあってもCodex級のアプリが簡単には増えない理由</h1>
+        <p class="lede">強いモデルは「実装できる範囲」を急拡大させた。しかし、Codexのような製品の難所はコード生成だけではなく、モデルを現実の環境で安全・安定・継続的に働かせる仕組みと、利用者が選ぶ理由を作ることにある。</p>
+        <p class="meta"><time datetime="2026-07-28">2026.07.28</time> · 7 min read · 2026年7月28日確認</p>
+      </header>
+
+      <div class="callout"><strong>答え:</strong> 「モデルがあれば、原理的には多くのソフトウェアを作れる」はかなり正しい。一方で「誰でもCodex級の製品を短期間で作り、運用し、普及させられる」は別の命題である。試作品の費用は下がったが、信頼性、安全性、評価、互換性、配布、採算という残りの仕事は消えていない。</div>
+
+      <h2>「作れる」を4段階に分ける</h2>
+      <p>モデルにアプリのコードを書かせ、一度動かすところまでは急速に簡単になった。だがCodex型のアプリは、コードを返すだけでなく、利用者のファイルを読み、コマンドを実行し、途中経過を保存し、危険な操作を止め、失敗から戻り、変更をレビュー可能にする必要がある。</p>
+
+      <div class="diagram" aria-label="モデルから継続的に選ばれる製品になるまでの4層">
+        <div class="diagram-step">
+          <strong>1. モデル</strong>
+          推論、コード生成、ツール選択
+        </div>
+        <div class="diagram-step">
+          <strong>2. エージェント基盤</strong>
+          文脈、ループ、実行環境、状態管理
+        </div>
+        <div class="diagram-step">
+          <strong>3. 製品</strong>
+          安全、評価、UX、互換性、サポート
+        </div>
+        <div class="diagram-step">
+          <strong>4. 事業</strong>
+          顧客、流通、価格、継続利用、信用
+        </div>
+      </div>
+
+      <p>多くの人が手にできるのは主に第1層である。APIやCodexのSDK・app-serverを使えば第2層の相当部分も借りられる。しかし、第3層と第4層は、対象ユーザーや業務ごとに設計し直さなければならない。</p>
+
+      <h2>Codexは「モデルを呼ぶ画面」ではない</h2>
+      <p><a href="https://openai.com/index/unlocking-the-codex-harness/">OpenAIによるCodex App Serverの解説</a>を見ると、モデルの外側にある仕事の量が分かる。Codexの共通基盤には、モデルとツールを回すエージェントループだけでなく、スレッドの作成・再開・分岐・保存、認証と設定、進捗イベント、差分、複数クライアントとの通信が含まれる。</p>
+
+      <div class="risk-grid">
+        <section>
+          <h3>環境を理解して動く</h3>
+          <p>OS、シェル、Git、依存関係、ビルド、テスト、リポジトリ固有ルールを発見し、長い処理の文脈を保つ。</p>
+        </section>
+        <section>
+          <h3>失敗を前提に制御する</h3>
+          <p>コマンド失敗、タイムアウト、通信切断、文脈の肥大化、モデルの誤判断から回復できるようにする。</p>
+        </section>
+        <section>
+          <h3>危険な作用を囲う</h3>
+          <p>ファイル書き込み、ネット接続、秘密情報、外部サービス操作をサンドボックス・権限・承認で制限する。</p>
+        </section>
+        <section>
+          <h3>人が判断できる形にする</h3>
+          <p>実行内容、変更差分、根拠、確認待ち、最終結果を、追跡・中断・レビューできるUIにする。</p>
+        </section>
+      </div>
+
+      <p>公式の<a href="https://learn.chatgpt.com/docs/agent-approvals-security">承認とセキュリティの文書</a>が、読み取り専用からワークスペース書き込み、承認付き操作、フルアクセスまで複数の組み合わせを定めていることも象徴的である。能力を与えるだけでは足りず、「どの作用を、どの境界内で、誰の許可により実行するか」が製品の中心になる。</p>
+
+      <h2>なぜ「一度動く」から「毎日使える」が遠いのか</h2>
+      <ol class="reason-list">
+        <li>
+          <strong>モデルの能力は均一ではない</strong>
+          <p>得意な課題では驚くほど強くても、曖昧な要件、暗黙知、複数人との調整、正解を自動判定できない課題では急に不安定になる。METRも、時間幅ベンチマークは主に自己完結した明確な技術課題であり、実際の仕事はより「汚い」と注意している。</p>
+        </li>
+        <li>
+          <strong>成功率は長い手順ほど積み上がる</strong>
+          <p>仮に各段階が高確率で正しくても、調査、編集、実行、修正、提出と工程が増えれば、どこかで外す可能性が増える。50%の成功率で「できる」課題と、99%近く必要な業務製品は同じではない。</p>
+        </li>
+        <li>
+          <strong>自動テスト合格と製品品質は同じではない</strong>
+          <p>METRの小規模な追試では、テスト上は機能しても、テスト網羅性、整形、lint、一般的なコード品質のため、そのまま採用しにくい出力が確認された。最後の品質判断を誰がどう行うかは残る。</p>
+        </li>
+        <li>
+          <strong>改善には専用の評価データが要る</strong>
+          <p>OpenAIの開発ガイドも、本番に近い入力で評価を作り、出力を継続的に測るよう勧めている。便利なデモは数例で作れるが、失敗パターンを収集し、回帰を防ぐ評価基盤は利用実績と専門知識を必要とする。</p>
+        </li>
+        <li>
+          <strong>安全性と便利さが衝突する</strong>
+          <p>権限を絞ると毎回止まり、広げると誤削除、情報流出、意図しない外部操作の被害が大きくなる。誰にどこまで自動化を許すかは、単なるプロンプトでは解けない設計問題である。</p>
+        </li>
+        <li>
+          <strong>作れることと、選ばれることは別</strong>
+          <p>汎用コーディングエージェントはOpenAI、Anthropic、Google、IDE企業などとの競争になり、モデル提供者が機能を標準搭載する危険もある。新規参入者には、独自の顧客接点、業務データ、連携先、専門ワークフロー、信用のいずれかが必要になる。</p>
+        </li>
+      </ol>
+
+      <h2>では、実際には誰も作っていないのか</h2>
+      <p><strong>「多くない」という観察には見え方の偏りもある。</strong> 汎用のCodex対抗製品は目立つ一方、社内の問い合わせ対応、契約書確認、テスト生成、障害調査、営業支援などに組み込まれた小さなエージェントは、単独の「AIアプリ」として見えない。さらに、既存SaaSの1機能として提供される場合も多い。</p>
+
+      <p>OpenAI自身も、エージェント構築には単なるモデル呼び出し以上に、ループ、ツール、ガードレール、トレース、評価が必要だとして<a href="https://developers.openai.com/tracks/building-agents">Agents SDKと関連基盤</a>を提供している。これは参入障壁を下げる一方、各社が同じ土台から始めるため、「モデルをつないだだけ」では差別化しにくくなることも意味する。</p>
+
+      <h2>小さなチームに勝ち目がある場所</h2>
+      <p>Codex全体を作り直すより、CodexやAgents SDKを基盤として借り、失敗の範囲と正解を定義しやすい狭い仕事を深く解くほうが現実的である。</p>
+
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">狙い</th>
+            <th scope="col">強い条件</th>
+            <th scope="col">弱い条件</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">特定業務</th>
+            <td>入力、成功条件、承認者が明確</td>
+            <td>何をもって完了か人によって違う</td>
+          </tr>
+          <tr>
+            <th scope="row">独自文脈</th>
+            <td>顧客データや既存システムに深く接続</td>
+            <td>公開情報だけで他社も同じ結果を出せる</td>
+          </tr>
+          <tr>
+            <th scope="row">評価</th>
+            <td>失敗例を集め、継続的に再テストできる</td>
+            <td>印象的なデモだけで品質を判断する</td>
+          </tr>
+          <tr>
+            <th scope="row">責任分界</th>
+            <td>自動実行と人の確認を明確に分ける</td>
+            <td>重要操作までモデルへ丸投げする</td>
+          </tr>
+          <tr>
+            <th scope="row">流通</th>
+            <td>すでに対象ユーザーへ届く経路がある</td>
+            <td>完成すれば自然に利用者が来ると考える</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="note"><strong>結論:</strong> モデルはソフトウェア開発の「実装力」を広く安価にした。しかしCodex級の価値は、モデルそのものより、実環境との接続、安全な作用、長時間の状態管理、品質評価、優れた操作体験、配布と信用を一体化したところにある。だから今後増えるのは、Codexのコピーよりも、汎用基盤の上に作られた専門的で目立たない製品だと考えるのが自然である。</p>
+
+      <h2>根拠の限界</h2>
+      <p>「なぜ起業家が参入しないか」を直接測った統計は確認できなかったため、事業上の理由は製品構造と一般的な競争条件からの解釈である。また、モデルとエージェントは急速に改善中である。METRの2025年調査では熟練開発者がAI利用時に19%遅くなったが、対象は特定の成熟したOSSと当時のツールに限られる。METRは2026年の追跡について、AIが以前より高速化に寄与している可能性を認めつつ、選択バイアスが大きく効果量は確定できないとしている。したがって、この記事は「AIは役に立たない」ではなく、「能力向上だけでは製品化の全問題は解けない」という説明である。</p>
+
+      <h2>参照元</h2>
+      <ul class="sources">
+        <li><a href="https://openai.com/index/unlocking-the-codex-harness/">Unlocking the Codex harness: how we built the App Server — OpenAI</a></li>
+        <li><a href="https://learn.chatgpt.com/docs/agent-approvals-security">Agent approvals &amp; security — OpenAI</a></li>
+        <li><a href="https://developers.openai.com/tracks/building-agents">Building agents — OpenAI Developers</a></li>
+        <li><a href="https://developers.openai.com/api/docs/guides/model-optimization">Model optimization: Build evals — OpenAI Developers</a></li>
+        <li><a href="https://evals.alignment.org/time-horizons/">Task-Completion Time Horizons of Frontier AI Models — METR</a></li>
+        <li><a href="https://metr.org/blog/2025-08-12-research-update-towards-reconciling-slowdown-with-time-horizons/">Research Update: Algorithmic vs. Holistic Evaluation — METR</a></li>
+        <li><a href="https://metr.org/blog/2026-02-24-uplift-update/">We are Changing our Developer Productivity Experiment Design — METR</a></li>
+        <li><a href="https://arxiv.org/abs/2310.06770">SWE-bench: Can Language Models Resolve Real-World GitHub Issues? — Jimenez et al.</a></li>
+      </ul>
+    </article>
+  </main>
+
+  <footer class="site-footer"><a href="../../../">← すべてのノートへ</a></footer>
+</body>
+</html>
