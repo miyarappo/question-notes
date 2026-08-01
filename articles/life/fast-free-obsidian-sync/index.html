@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Obsidianを速く、手間なく、できるだけ無料で同期する方法を、端末構成別に比較する。">
+  <title>Obsidianを速く、ストレスなく同期する方法 — Question Notes</title>
+  <link rel="stylesheet" href="../../../styles/site.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="../../../"><span class="brand-mark" aria-hidden="true">?</span> Question Notes</a>
+    <span class="meta">Codex と育てる質問ノート</span>
+  </header>
+
+  <main class="article">
+    <article>
+      <header class="article-header">
+        <p class="tag">暮らし</p>
+        <h1>Obsidianを速く、ストレスなく同期する方法</h1>
+        <p class="lede">完全無料の最適解は端末次第。Apple製品だけならiCloud、Windows・macOS・Linux・Android中心ならSyncthing、iPhoneを含む混在環境では公式Obsidian Syncが最も手離れがよい。</p>
+        <p class="meta"><time datetime="2026-08-01">2026.08.01</time> · 6 min read · 2026年8月1日確認</p>
+      </header>
+
+      <div class="callout"><strong>結論:</strong> まず無料案を端末構成で選ぶ。Apple製品だけならiCloud、iPhoneを含まない混在環境ならSyncthing。それで待ち時間や競合が気になるなら、月払い5米ドル、年払いなら月あたり4米ドルのObsidian Sync Standardへ移るのが、最もストレスを減らしやすい。</div>
+
+      <h2>端末で決めれば迷わない</h2>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">使う端末</th>
+            <th scope="col">第一候補</th>
+            <th scope="col">費用</th>
+            <th scope="col">判断</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">Mac・iPhone・iPadだけ</th>
+            <td><strong>iCloud Drive</strong></td>
+            <td>既存の無料枠内なら0円</td>
+            <td>無料と簡単さのバランスが最良。Vaultを常に端末へダウンロードして使う。</td>
+          </tr>
+          <tr>
+            <th scope="row">Windows・macOS・Linux・Android</th>
+            <td><strong>Syncthing</strong></td>
+            <td>0円</td>
+            <td>直接同期で軽快。初期設定と常時稼働端末の用意は必要。</td>
+          </tr>
+          <tr>
+            <th scope="row">iPhone＋Windows / Androidなど</th>
+            <td><strong>Obsidian Sync Standard</strong></td>
+            <td>月5米ドル、または年48米ドル</td>
+            <td>完全無料と無設定を両立しにくい構成。公式Syncが最も安定志向。</td>
+          </tr>
+          <tr>
+            <th scope="row">PC同士だけ</th>
+            <td><strong>今あるクラウド</strong></td>
+            <td>無料枠内なら0円</td>
+            <td>OneDriveやGoogle Driveでもよい。Vaultは「常にこの端末に保持」にする。</td>
+          </tr>
+        </tbody>
+      </table>
+      <p>「最速」を横並びで測った公式ベンチマークは見当たらない。上の順位は、Obsidian公式の推奨範囲、同期の自動性、端末制約、競合時の手間から見た実用上の評価である。</p>
+
+      <h2>無料で一番ラク：Apple製品だけならiCloud</h2>
+      <p>Obsidian公式はiCloudをmacOS・iOS・iPadOS向けとして案内している。Vaultを <code>iCloud Drive/Obsidian/</code> の中に置き、macOS 15以降ではObsidianフォルダを右クリックして<strong>「ダウンロード済みを保持」</strong>にする。macOS 14以前では「Macストレージを最適化」を切るのが公式の推奨だ。</p>
+      <p>Apple Accountには通常5GBの無料iCloudストレージがあるが、写真やバックアップとも共用する。Markdown中心なら収まりやすい一方、画像・音声・PDFを大量に入れるVaultでは容量を確認したい。</p>
+      <p><strong>WindowsではiCloudを選ばない。</strong> Obsidian公式は、Windows版iCloud Driveでファイルの重複や破損が起こり得ると警告している。</p>
+
+      <h2>無料で速さ重視：Syncthing</h2>
+      <p>SyncthingはVaultフォルダを端末間で直接同期する無料の仕組みだ。各端末で相手のDevice IDを登録し、同じフォルダを双方向の「Send &amp; Receive」にする。クラウド容量を買わずに済み、同じLAN上の端末間では遠隔サーバーを経由しない構成にできる。</p>
+      <p>ただし、Obsidian公式の推奨対象はWindows・macOS・Linuxで、Androidは公式アプリの保守が終了し、コミュニティ版Syncthing-Forkを使う形になる。iOSは公式サポート外だ。また、連続同期には少なくとも1台が常時オンラインだと安定しやすい。</p>
+
+      <h3>ストレスを減らす設定</h3>
+      <ol>
+        <li>まずVault全体を別の場所へバックアップする。</li>
+        <li>全端末でSyncthingを自動起動する。</li>
+        <li>Vaultフォルダを「Send &amp; Receive」で共有する。</li>
+        <li>端末ごとに設定を変えたいなら <code>.obsidian</code> を同期対象から外す。</li>
+        <li>SyncthingのFile Versioningを有効にする。初期状態では無効なので注意する。</li>
+        <li>端末を切り替える前に同期完了を確認し、同じノートを2台で同時編集しない。</li>
+      </ol>
+      <p>同じファイルを複数端末で同時に変更すると、Syncthingは一方を <code>sync-conflict</code> ファイルとして残す。データを黙って上書きしない利点はあるが、後で内容を統合する手間は発生する。</p>
+
+      <h2>お金で手間を減らす：Obsidian Sync</h2>
+      <p>公式SyncはWindows、macOS、Linux、iOS、Androidを同じ方式で扱い、バックグラウンド同期、エンドツーエンド暗号化、版履歴を備える。Standardは1 Vault、合計1GB、1ファイル5MBまで、版履歴1か月、端末数は無制限。料金は月払い5米ドル、年払い48米ドル（月あたり4米ドル）である。</p>
+      <p>画像やPDFを多用しない個人VaultならStandardが現実的な最小プランだ。学生・教職員・非営利団体職員には40%割引がある。iPhoneとWindowsをまたぐ、設定を保守したくない、複数端末を頻繁に切り替える、という人には無料案より総合的な負担が小さい。</p>
+
+      <h2>避けたい構成</h2>
+      <ul>
+        <li><strong>同じVaultへ同期サービスを二重にかける：</strong> iCloudとObsidian Sync、SyncthingとOneDriveなどを重ねると競合・破損の原因になる。</li>
+        <li><strong>クラウドのオンデマンド保存：</strong> ファイルが端末から退避されると、Obsidianには消えたように見えることがある。Vaultはオフライン利用可能にする。</li>
+        <li><strong>Gitをリアルタイム同期として使う：</strong> 履歴管理には強いが、push・pullが必要で、公式も自動同期ではないと説明している。</li>
+        <li><strong>同期をバックアップだと思う：</strong> 誤削除も全端末へ伝わる。主端末から別媒体へ一方向バックアップを取る。</li>
+      </ul>
+
+      <h2>迷ったときの最短ルート</h2>
+      <div class="diagram" role="img" aria-label="端末構成から同期方法を選ぶ四つの判断">
+        <div class="diagram-step"><strong>Appleだけ</strong>iCloudを使い、Vaultを「ダウンロード済みを保持」にする。</div>
+        <div class="diagram-step"><strong>iPhoneなし</strong>無料優先ならSyncthing。常時起動と版管理を設定する。</div>
+        <div class="diagram-step"><strong>iPhone＋他OS</strong>まず公式Syncを月払いで試し、合えば年払いへ切り替える。</div>
+        <div class="diagram-step"><strong>どの方式でも</strong>同期とは別に、一方向バックアップを用意する。</div>
+      </div>
+
+      <h2>参照元</h2>
+      <ul class="sources">
+        <li><a href="https://obsidian.md/help/sync-notes">Sync your notes across devices — Obsidian Help</a></li>
+        <li><a href="https://obsidian.md/sync">Obsidian Sync — 機能と料金</a></li>
+        <li><a href="https://obsidian.md/help/sync/plans">Plans and storage limits — Obsidian Help</a></li>
+        <li><a href="https://obsidian.md/help/backup">Back up your Obsidian files — Obsidian Help</a></li>
+        <li><a href="https://support.apple.com/en-us/102447">Web-only access to iCloud — Apple Support</a></li>
+        <li><a href="https://docs.syncthing.net/intro/getting-started.html">Getting Started — Syncthing documentation</a></li>
+        <li><a href="https://docs.syncthing.net/users/versioning.html">File Versioning — Syncthing documentation</a></li>
+      </ul>
+    </article>
+  </main>
+
+  <footer class="site-footer"><a href="../../../">← すべてのノートへ</a></footer>
+</body>
+</html>
