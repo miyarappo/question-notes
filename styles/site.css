@@ -288,6 +288,71 @@ code { font-family: "SFMono-Regular", Consolas, monospace; font-size: .92em; }
 .reason-list li { margin-block: 1.3em; padding-left: .35em; }
 .reason-list p { margin: .35em 0 0; }
 
+.company-analysis-list {
+  display: grid;
+  gap: 18px;
+  margin: 28px 0 40px;
+}
+
+.company-analysis {
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.company-analysis h3 { margin: 3px 0 8px; }
+.company-analysis h4 { margin: 0 0 7px; font-size: .96rem; }
+.company-analysis p { margin: 0; }
+
+.analysis-label {
+  color: var(--accent);
+  font-size: .76rem;
+  font-weight: 850;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+
+.analysis-thesis {
+  color: var(--ink);
+  font-size: 1.02rem;
+  font-weight: 720;
+}
+
+.analysis-facts,
+.analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.analysis-facts div,
+.analysis-grid section {
+  min-width: 0;
+  padding: 15px 16px;
+  border-radius: 14px;
+  background: var(--accent-soft);
+}
+
+.analysis-facts dt {
+  margin-bottom: 4px;
+  color: var(--accent);
+  font-size: .74rem;
+  font-weight: 850;
+  letter-spacing: .05em;
+}
+
+.analysis-facts dd { margin: 0; }
+
+.analyst-lens {
+  margin-top: 16px !important;
+  padding: 14px 16px;
+  border-left: 4px solid var(--warm);
+  background: #fff8e8;
+}
+
 .eye-stack {
   display: grid;
   grid-template-columns: .7fr repeat(5, 1fr);
@@ -343,7 +408,7 @@ code { font-family: "SFMono-Regular", Consolas, monospace; font-size: .92em; }
 }
 
 @media (max-width: 760px) {
-  .hero, .toolbar, .notes-grid, .diagram, .outlook, .risk-grid { grid-template-columns: 1fr; }
+  .hero, .toolbar, .notes-grid, .diagram, .outlook, .risk-grid, .analysis-facts, .analysis-grid { grid-template-columns: 1fr; }
   .hero { gap: 28px; padding-top: 42px; }
   .article table { display: block; overflow-x: auto; }
   .diagram-step:not(:last-child)::after {
@@ -425,6 +490,7 @@ code { font-family: "SFMono-Regular", Consolas, monospace; font-size: .92em; }
   }
   .table-scroll .facts-table td:nth-of-type(even) { border-right: 0; }
   .table-scroll .facts-table td:nth-last-child(-n + 2) { border-bottom: 0; }
+  .company-analysis { padding: 20px 17px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
